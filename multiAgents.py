@@ -79,8 +79,18 @@ class ReflexAgent(Agent):
         positionOfGhosts = successorGameState.getGhostPositions() #list of all the positions of ghosts
         positionFromGhosts = [manhattanDistance(newPos, ghostpos) for ghostpos in positionOfGhosts] #distance from pacman to all the ghost positions
         score = reduce(lambda x, y: x+y, positionFromGhosts) #add up all the distances of pacman to ghosts
-        score = (score/len(newGhostStates)) #divide by number of ghosts
-        score = score + (1.0/successorGameState.getNumFood()) #add in number of food left
+        if len(newGhostStates) > 1:
+          score = (score/len(newGhostStates)) #divide by number of ghosts
+        if successorGameState.getNumFood() > 0:
+          score = score + ((1.0/successorGameState.getNumFood()) * 999999) #add in number of food left
+          positionFromFood = []
+          for i in range(newFood.width):
+            for j in range(newFood.height):
+              if newFood[i][j] == True:
+                positionFromFood.append(manhattanDistance(newPos, (i, j)))
+          score = score + ((1.0/reduce(lambda x, y: x+y, positionFromFood)) * 999999)
+        else:
+          score = score + (2*999999)
         score = score + max(newScaredTimes) #add in how scared the ghosts are
         return score
 
