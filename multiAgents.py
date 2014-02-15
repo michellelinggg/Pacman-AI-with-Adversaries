@@ -75,24 +75,11 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         "***YOUR CODE HERE***"
-        score = 0 #original score
-        positionOfGhosts = successorGameState.getGhostPositions() #list of all the positions of ghosts
-        positionFromGhosts = [manhattanDistance(newPos, ghostpos) for ghostpos in positionOfGhosts] #distance from pacman to all the ghost positions
-        score = reduce(lambda x, y: x+y, positionFromGhosts) #add up all the distances of pacman to ghosts
-        if len(newGhostStates) > 1:
-          score = (score/len(newGhostStates)) #divide by number of ghosts
-        if successorGameState.getNumFood() > 0:
-          score = score + ((1.0/successorGameState.getNumFood()) * 999999) #add in number of food left
-          positionFromFood = []
-          for i in range(newFood.width):
-            for j in range(newFood.height):
-              if newFood[i][j] == True:
-                positionFromFood.append(manhattanDistance(newPos, (i, j)))
-          score = score + ((1.0/reduce(lambda x, y: x+y, positionFromFood)) * 999999)
-        else:
-          score = score + (2*999999)
-        score = score + max(newScaredTimes) #add in how scared the ghosts are
-        return score
+        import math
+        distances = [manhattanDistance(newPos, foodPos) for foodPos in newFood.asList()]
+        minFood = (1.0/min(distances)) if len(newFood.asList()) > 0 else 1 # this is good the smaller it is
+        minGhost = min([manhattanDistance(newPos, ghostpos) for ghostpos in newGhostPos]) # this is good the larger it is
+        return math.sqrt(minFood + minGhost) + successorGameState.getScore() # i don't know why this works
 
 def scoreEvaluationFunction(currentGameState):
     """
