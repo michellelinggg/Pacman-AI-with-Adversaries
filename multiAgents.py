@@ -30,6 +30,7 @@ class ReflexAgent(Agent):
     """
 
 
+
     def getAction(self, gameState):
         """
         You do not need to change this method, but you're welcome to.
@@ -73,9 +74,14 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        score = 0
+        positionOfGhosts = successorGameState.getGhostPositions()
+        positionFromGhosts = [manhattanDistance(newPos, ghostpos) for ghostpos in positionOfGhosts]
+        score = reduce(lambda x, y: x+y, positionFromGhosts)
+        score = (score/len(newGhostStates))
+        score = score + (1.0/successorGameState.getNumFood())
+        score = score + max(newScaredTimes)
+        return score
 
 def scoreEvaluationFunction(currentGameState):
     """
