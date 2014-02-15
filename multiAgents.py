@@ -74,6 +74,7 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        newGhostPos = successorGameState.getGhostPositions()
         "***YOUR CODE HERE***"
         import math
         distances = [manhattanDistance(newPos, foodPos) for foodPos in newFood.asList()]
