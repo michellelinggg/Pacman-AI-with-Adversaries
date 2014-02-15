@@ -74,13 +74,14 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        score = 0
-        positionOfGhosts = successorGameState.getGhostPositions()
-        positionFromGhosts = [manhattanDistance(newPos, ghostpos) for ghostpos in positionOfGhosts]
-        score = reduce(lambda x, y: x+y, positionFromGhosts)
-        score = (score/len(newGhostStates))
-        score = score + (1.0/successorGameState.getNumFood())
-        score = score + max(newScaredTimes)
+        "***YOUR CODE HERE***"
+        score = 0 #original score
+        positionOfGhosts = successorGameState.getGhostPositions() #list of all the positions of ghosts
+        positionFromGhosts = [manhattanDistance(newPos, ghostpos) for ghostpos in positionOfGhosts] #distance from pacman to all the ghost positions
+        score = reduce(lambda x, y: x+y, positionFromGhosts) #add up all the distances of pacman to ghosts
+        score = (score/len(newGhostStates)) #divide by number of ghosts
+        score = score + (1.0/successorGameState.getNumFood()) #add in number of food left
+        score = score + max(newScaredTimes) #add in how scared the ghosts are
         return score
 
 def scoreEvaluationFunction(currentGameState):
