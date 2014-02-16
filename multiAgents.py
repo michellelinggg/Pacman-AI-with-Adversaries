@@ -133,6 +133,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
     Maximizer for our minimax algo
     '''
     def max_value(self, state, agentIndex, currentDepth, depth, ghosts):
+      if (currentDepth > depth - 1 or state.isLose() or state.isWin()): # if we have already won
+        return self.evaluationFunction(state)
       legal_actions = state.getLegalActions(agentIndex)
       v = float("-inf")
       successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
@@ -180,13 +182,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        depth = self.depth # how many times pacman and the ghost move
+        depth = self.depth 
         actions = gameState.getLegalActions(0)
         action_costs = {}
         if depth > 0:
           for action in actions:
             action_costs[self.start_minimax(gameState, action, 0, 0, depth, gameState.getNumAgents())] = action
-        print " SOLUTIONS !!!!!! " + str(action_costs)
         return action_costs[max(action_costs)]
 
     def getAction(self, gameState):
