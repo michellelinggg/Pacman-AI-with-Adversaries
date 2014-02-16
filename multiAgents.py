@@ -79,10 +79,10 @@ class ReflexAgent(Agent):
         import math
         score = 0;
         distances = [manhattanDistance(newPos, foodPos) for foodPos in newFood.asList()]
-        minFood = (1.0/min(distances)) if len(newFood.asList()) > 0 else 1 # this is good the smaller it is
+        minFood = (1.0/min(distances)) if len(newFood.asList()) > 0 else 1 #closer the distance, bigger the number
         newGhostPos = successorGameState.getGhostPositions()
-        minGhost = min([manhattanDistance(newPos, ghostpos) for ghostpos in newGhostPos]) # this is good the larger it is
-        if minGhost == minFood:
+        minGhost = min([manhattanDistance(newPos, ghostpos) for ghostpos in newGhostPos]) #farther the distance, bigger the number
+        if minGhost == minFood: #don't head towards food if a ghost is there
           score = -2
         return score + math.sqrt(minFood * minGhost) + successorGameState.getScore() 
 
