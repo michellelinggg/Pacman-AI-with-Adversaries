@@ -77,7 +77,6 @@ class ReflexAgent(Agent):
         newGhostPos = successorGameState.getGhostPositions()
         "***YOUR CODE HERE***"
         import math
-<<<<<<< HEAD
         score = 0;
         distances = [manhattanDistance(newPos, foodPos) for foodPos in newFood.asList()]
         minFood = (1.0/min(distances)) if len(newFood.asList()) > 0 else 1 # this is good the smaller it is
@@ -86,12 +85,6 @@ class ReflexAgent(Agent):
         if minGhost == minFood:
           score = -2
         return score + math.sqrt(minFood * minGhost) + successorGameState.getScore() 
-=======
-        distances = [manhattanDistance(newPos, foodPos) for foodPos in newFood.asList()]
-        minFood = (1.0/min(distances)) if len(newFood.asList()) > 0 else 1 # this is good the smaller it is
-        minGhost = min([manhattanDistance(newPos, ghostpos) for ghostpos in newGhostPos]) # this is good the larger it is
-        return math.sqrt(minFood * minGhost) + successorGameState.getScore() 
->>>>>>> 77e0aa2f59f4c211d833c2fcc6f5fe6d8702a7c1
 
 def scoreEvaluationFunction(currentGameState):
     """
