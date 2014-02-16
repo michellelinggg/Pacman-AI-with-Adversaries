@@ -124,45 +124,70 @@ class MinimaxAgent(MultiAgentSearchAgent):
     Starts off the minimax process (essentially max_value)
     """
     def start_minimax(self, state, action, agentIndex, currentDepth, depth, ghosts):
-      #print "STARTING MINIMAX"
+      if state.isWin() or state.isLose():
+        return state.evaluationFunction(state)
       successor = state.generateSuccessor(agentIndex, action)
-      v = self.min_value(successor, ghosts, currentDepth, depth)
+      v = self.min_value(ghosts, successor, 1, currentDepth, depth)
       return v 
     '''
     Maximizer for our minimax algo
     '''
     def max_value(self, state, agentIndex, currentDepth, depth, ghosts):
-      #print "CALLING MAXIMIZER"
       legal_actions = state.getLegalActions(agentIndex)
-      if len(legal_actions) == 0:
-        return self.evaluationFunction(state)
       v = float("-inf")
       successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
-      print "we have successors " + str(len(successors))
-      for successor in successors:
-        v = max(v, self.min_value(successor, ghosts, currentDepth, depth)) # pass in the successor, the ghosts and the currentDepth 
-      return v 
-    
-    '''
-    The minimizer for our minimax algo
-    '''
-    def min_value(self, state, numGhosts, currentDepth, depth):
-      #print "CALLING MINIMIZER"
-      ghostScores = []
-      if currentDepth >= depth: # if we have already won
-        print "final score " + str(self.evaluationFunction(state))
+      if len(successors) == 0 or state.isLose() or state.isWin():
         return self.evaluationFunction(state)
-      for ghost in range(numGhosts):
-        current_ghost = ghost + 1
-        legal_actions = state.getLegalActions(current_ghost)
-        successors = [state.generateSuccessor(current_ghost, action) for action in legal_actions]
-        if len(successors) == 0:
-          ghostScores.append(self.evaluationFunction(state))
+      for successor in successors:
+        v = max(v, self.min_value(ghosts, successor, 1, currentDepth, depth)) # pass in the successor, the ghosts and the currentDepth 
+      return v 
+    '''
+    Minimizer for our minimax algo.
+    '''
+    def min_value(self, ghosts, state, agentIndex, currentDepth, depth):
+      if (currentDepth > depth or state.isLose() or state.isWin()): # if we have already won
+        return self.evaluationFunction(state)
+      if agentIndex < ghosts - 1:
+        legal_actions = state.getLegalActions(agentIndex)
+        successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
         v = float("inf")
         for successor in successors:
-          v = min(v, self.max_value(successor, 0, currentDepth + 1, depth, numGhosts))
-        ghostScores.append(v)
-      return min(ghostScores)
+          v = min(v, self.min_value(ghosts, successor, agentIndex + 1, currentDepth, depth))
+        return v
+      else:
+        legal_actions = state.getLegalActions(agentIndex)
+        successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
+        v = float("inf")
+        for successor in successors:
+          v = min(v, self.max_value(successor, 0, currentDepth + 1, depth, ghosts))
+        return v
+    
+    def getAction(self, gameState):
+        """
+          Returns the minimax action from the current gameState using self.depth
+          and self.evaluationFunction.
+
+          Here are some method calls that might be useful when implementing minimax.
+
+          gameState.getLegalActions(agentIndex):
+            Returns a list of legal actions for an agent
+            agentIndex=0 means Pacman, ghosts are >= 1
+
+          gameState.generateSuccessor(agentIndex, action):
+            Returns the successor game state after an agent takes an action
+
+          gameState.getNumAgents():
+            Returns the total number of agents in the game
+        """
+        "*** YOUR CODE HERE ***"
+        depth = self.depth # how many times pacman and the ghost move
+        actions = gameState.getLegalActions(0)
+        action_costs = {}
+        if depth > 0:
+          for action in actions:
+            action_costs[self.start_minimax(gameState, action, 0, 0, depth, gameState.getNumAgents())] = action
+        print " SOLUTIONS !!!!!! " + str(action_costs)
+        return action_costs[max(action_costs)]
 
     def getAction(self, gameState):
         """
