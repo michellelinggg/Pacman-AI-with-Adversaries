@@ -120,6 +120,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    """
+    Starts off the minimax process (essentially max_value)
+    """
+    def start_minimax(self, state, action, agentIndex, currentDepth, depth, ghosts):
+      #print "STARTING MINIMAX"
+      successor = state.generateSuccessor(agentIndex, action)
+      v = self.min_value(successor, ghosts, currentDepth, depth)
+      return v 
+    '''
+    Maximizer for our minimax algo
+    '''
+    def max_value(self, state, agentIndex, currentDepth, depth, ghosts):
+      #print "CALLING MAXIMIZER"
+      legal_actions = state.getLegalActions(agentIndex)
+      if len(legal_actions) == 0:
+        return self.evaluationFunction(state)
+      v = float("-inf")
+      successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
+      print "we have successors " + str(len(successors))
+      for successor in successors:
+        v = max(v, self.min_value(successor, ghosts, currentDepth, depth)) # pass in the successor, the ghosts and the currentDepth 
+      return v 
+    
+    '''
+    The minimizer for our minimax algo
+    '''
+    def min_value(self, state, numGhosts, currentDepth, depth):
+      #print "CALLING MINIMIZER"
+      ghostScores = []
+      if currentDepth >= depth: # if we have already won
+        print "final score " + str(self.evaluationFunction(state))
+        return self.evaluationFunction(state)
+      for ghost in range(numGhosts):
+        current_ghost = ghost + 1
+        legal_actions = state.getLegalActions(current_ghost)
+        successors = [state.generateSuccessor(current_ghost, action) for action in legal_actions]
+        if len(successors) == 0:
+          ghostScores.append(self.evaluationFunction(state))
+        v = float("inf")
+        for successor in successors:
+          v = min(v, self.max_value(successor, 0, currentDepth + 1, depth, numGhosts))
+        ghostScores.append(v)
+      return min(ghostScores)
 
     def getAction(self, gameState):
         """
@@ -139,8 +182,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        depth = self.depth # how many times pacman and the ghost move
+        numAgents = gameState.getNumAgents() #ghosts!
+        actions = gameState.getLegalActions(0)
+        action_costs = {}
+        if depth > 0:
+          for action in actions:
+            action_costs[action] = self.start_minimax(gameState, action, 0, 1, depth, numAgents - 1) #the action required to get to the max
+        return max(action_costs)
+        
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
