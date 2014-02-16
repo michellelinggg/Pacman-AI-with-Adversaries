@@ -221,13 +221,64 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
     """
-
+    """
+    Starts off the minimax process (essentially max_value)
+    """
+    def prune_start_minimax(self, state, action, agentIndex, currentDepth, depth, ghosts, a, b):
+      if state.isWin() or state.isLose():
+        return state.evaluationFunction(state)
+      successor = state.generateSuccessor(agentIndex, action)
+      v = self.prune_min_value(ghosts, successor, 1, currentDepth, depth, a, b)
+      return v 
+    '''
+    Maximizer for our minimax algo
+    '''
+    def prune_max_value(self, state, agentIndex, currentDepth, depth, ghosts, a, b):
+      if (currentDepth > depth - 1 or state.isLose() or state.isWin()): 
+        return self.evaluationFunction(state)
+      legal_actions = state.getLegalActions(agentIndex)
+      v = float("-inf")
+      if len(legal_actions) == 0 or state.isLose() or state.isWin():
+        return self.evaluationFunction(state)
+      for action in legal_actions:
+        v = max(v, self.prune_min_value(ghosts, state.generateSuccessor(agentIndex, action), 1, currentDepth, depth, a, b))
+        if v > b:
+          return v
+        a = max(a, v) 
+      return v 
+    '''
+    Minimizer for our minimax algo.
+    '''
+    def prune_min_value(self, ghosts, state, agentIndex, currentDepth, depth, a, b):
+      if (currentDepth > depth or state.isLose() or state.isWin()): 
+        return self.evaluationFunction(state)
+      legal_actions = state.getLegalActions(agentIndex)
+      v = float("inf")
+      for action in legal_actions:
+        v = min(v, self.prune_min_value(ghosts, state.generateSuccessor(agentIndex, action), agentIndex + 1, currentDepth, depth, a, b)) if agentIndex < ghosts - 1 else min(v, self.prune_max_value(state.generateSuccessor(agentIndex, action), 0, currentDepth + 1, depth, ghosts, a, b))
+        if v < a:
+          return v
+        b = min(b,v)
+      return v
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        depth = self.depth 
+        actions = gameState.getLegalActions(0)
+        action_costs = {}
+        a = float("-inf")
+        b = float("inf")
+        v = float("-inf")
+        if depth > 0:
+          for action in actions:
+            val = self.prune_start_minimax(gameState, action, 0, 0, depth, gameState.getNumAgents(), a, b)
+            v = max(v, val)
+            action_costs[val] = action
+            if v > b:
+              break;
+            a = max(a, v)
+        return action_costs[max(action_costs)]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
