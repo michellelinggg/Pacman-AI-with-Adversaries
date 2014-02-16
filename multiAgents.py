@@ -284,7 +284,44 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
+    """
+    Starts off the minimax process (essentially max_value)
+    """
+    def start_minimax(self, state, action, agentIndex, currentDepth, depth, ghosts):
+      if state.isWin() or state.isLose():
+        return state.evaluationFunction(state)
+      successor = state.generateSuccessor(agentIndex, action)
+      v = self.exp_value(ghosts, successor, 1, currentDepth, depth)
+      return v 
+    '''
+    Maximizer for our minimax algo
+    '''
+    def max_value(self, state, agentIndex, currentDepth, depth, ghosts):
+      if (currentDepth > depth - 1 or state.isLose() or state.isWin()): # if we have already won
+        return self.evaluationFunction(state)
+      legal_actions = state.getLegalActions(agentIndex)
+      v = float("-inf")
+      successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
+      if len(successors) == 0 or state.isLose() or state.isWin():
+        return self.evaluationFunction(state)
+      for successor in successors:
+        v = max(v, self.exp_value(ghosts, successor, 1, currentDepth, depth)) # pass in the successor, the ghosts and the currentDepth 
+      return v 
+    '''
+    Minimizer for our minimax algo.
+    '''
+    def exp_value(self, ghosts, state, agentIndex, currentDepth, depth):
+      if (currentDepth > depth or state.isLose() or state.isWin()): # if we have already won
+        return self.evaluationFunction(state)
+      legal_actions = state.getLegalActions(agentIndex)
+      successors = [state.generateSuccessor(agentIndex, action) for action in legal_actions]
+      v = 0
+      prob = (1.0/len(successors))
+      for successor in successors:
+        v += prob * self.exp_value(ghosts, successor, agentIndex + 1, currentDepth, depth) if agentIndex < ghosts - 1 else prob * self.max_value(successor, 0, currentDepth + 1, depth, ghosts)
+      return v
 
+    
     def getAction(self, gameState):
         """
           Returns the expectimax action using self.depth and self.evaluationFunction
@@ -292,8 +329,14 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        depth = self.depth 
+        actions = gameState.getLegalActions(0)
+        action_costs = {}
+        if depth > 0:
+          for action in actions:
+            action_costs[self.start_minimax(gameState, action, 0, 0, depth, gameState.getNumAgents())] = action
+        return action_costs[max(action_costs)]
+
 
 def betterEvaluationFunction(currentGameState):
     """
