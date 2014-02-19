@@ -74,7 +74,6 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        newGhostPos = successorGameState.getGhostPositions()
         "***YOUR CODE HERE***"
         import math
         score = 0;
@@ -325,15 +324,14 @@ def betterEvaluationFunction(currentGameState):
     newFood = currentGameState.getFood()
     newGhostStates = currentGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-    newGhostPos = currentGameState.getGhostPositions()
     score = 0;
     distances = [manhattanDistance(newPos, foodPos) for foodPos in newFood.asList()]
     minFood = (1.0/min(distances)) if len(newFood.asList()) > 0 else 1 #closer the distance, bigger the number
     newGhostPos = currentGameState.getGhostPositions()
     minGhost = min([manhattanDistance(newPos, ghostpos) for ghostpos in newGhostPos]) #farther the distance, bigger the number
     if minGhost == minFood: #don't head towards food if a ghost is there
-        score = -30
-    return score + minFood*2 + min(newScaredTimes) + currentGameState.getScore() 
+        score = -100
+    return score + minFood*3 + min(newScaredTimes) + currentGameState.getScore() 
 
 # Abbreviation
 better = betterEvaluationFunction
